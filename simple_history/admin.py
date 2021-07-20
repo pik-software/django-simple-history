@@ -23,6 +23,9 @@ class SimpleHistoryAdmin(admin.ModelAdmin):
     object_history_template = "simple_history/object_history.html"
     object_history_form_template = "simple_history/object_history_form.html"
 
+    def has_view_simple_history_permission(self, request, obj):
+        return self.has_view_or_change_permission(request, obj)
+
     def get_urls(self):
         """Returns the additional urls used by the Reversion admin."""
         urls = super(SimpleHistoryAdmin, self).get_urls()
@@ -61,7 +64,7 @@ class SimpleHistoryAdmin(admin.ModelAdmin):
             except action_list.model.DoesNotExist:
                 raise http.Http404
 
-        if not self.has_change_permission(request, obj):
+        if not self.has_view_simple_history_permission(request, obj):
             raise PermissionDenied
 
         # Set attribute on each action_list entry from admin methods
@@ -131,7 +134,7 @@ class SimpleHistoryAdmin(admin.ModelAdmin):
         ).instance
         obj._state.adding = False
 
-        if not self.has_change_permission(request, obj):
+        if not self.has_view_simple_history_permission(request, obj):
             raise PermissionDenied
 
         if SIMPLE_HISTORY_EDIT:
